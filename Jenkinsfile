@@ -9,7 +9,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git 'https://github.com/YOUR_USERNAME/temperature-converter.git'
+                git 'https://github.com/MehdiZaidaneS/junitests.git'
             }
         }
 
