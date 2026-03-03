@@ -7,12 +7,6 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/MehdiZaidaneS/junitests.git'
-            }
-        }
-
         stage('Build') {
             steps {
                 bat 'mvn clean install'
