@@ -5,9 +5,22 @@ pipeline {
         maven 'Maven 3.8.5'
     }
 
+    environment {
+        PATH = "C:\\Program Files\\Docker\\Docker\\resources\\bin;${env.PATH}"
+        DOCKERHUB_CREDENTIALS_ID = 'Docker-Hub'
+        DOCKERHUB_REPO = 'mehdizaidane/junitests'
+        DOCKER_IMAGE_TAG = 'latest'
+    }
+
     stages {
 
-        stage('Build') {
+        stage('Check') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Jesperho/Employee-Management-System.git'
+            }
+        }
+
+        stage('Build Job') {
             steps {
                 bat 'mvn clean install'
             }
@@ -19,13 +32,13 @@ pipeline {
             }
         }
 
-        stage('Generate JaCoCo Report') {
+        stage('Generate Report') {
             steps {
                 bat 'mvn jacoco:report'
             }
         }
 
-        stage('Publish Test Results') {
+        stage('Publish Test Result') {
             steps {
                 junit '**/target/surefire-reports/*.xml'
             }
@@ -34,6 +47,24 @@ pipeline {
         stage('Publish Coverage Report') {
             steps {
                 jacoco()
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("${DOCKERHUB_REPO}:${DOCKER_IMAGE_TAG}")
+                }
+            }
+        }
+
+        stage('Push Docker Image to Docker Hub') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS_ID) {
+                        docker.image("${DOCKERHUB_REPO}:${DOCKER_IMAGE_TAG}").push()
+                    }
+                }
             }
         }
     }
